@@ -41,11 +41,11 @@ object Config {
 	object WeightParser extends JavaTokenParsers {
 		def apply(s: String): List[ArmorWeight] = {
 			def emptyFailure(msg: String) = {
-				println(msg)
+				Log.error(msg)
 				List[ArmorWeight]()
 			}
 			parseAll(list, s) match {
-				case Success(out, in) => out
+				case Success(out, _) => out
 				case Failure(msg, _) => emptyFailure(msg)
 				case Error(msg, _) => emptyFailure(msg)
 			}

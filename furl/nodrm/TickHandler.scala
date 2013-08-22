@@ -4,6 +4,7 @@ import furl.Log
 
 import java.util.EnumSet
 import scala.collection.mutable.HashMap
+import scala.math
 
 import cpw.mods.fml.common.ITickHandler
 import cpw.mods.fml.common.TickType
@@ -54,19 +55,26 @@ object PlayerTickHandler {
 		val armor = player.inventory.armorInventory
 
 		val armorIds = armor.map(s => if (s == null) 0 else s.itemID)
-		val enchantIds = armor.map(s =>
+		val enchantWeights = armor.map(s => {
 			if (s == null || s.getEnchantmentTagList == null) {
 				1
 			} else {
 				val enchants = s.getEnchantmentTagList
-				((0 until enchants.tagCount).map(
-						enchants.tagAt(_).asInstanceOf[NBTTagCompound].getShort("id")
-					) :\ 1)(_*_) // multiplicative weights!
+				((0 until enchants.tagCount).map(i => {
+						val compound = enchants.tagAt(i).asInstanceOf[NBTTagCompound]
+						val id = compound.getShort("id")
+						val level = compound.getShort("lvl")
+						Config.enchantWeights
+							.filter(_._1 == id)
+							.map(n => math.pow(n._2, level).toFloat)
+					}).flatten :\ 1f)(_*_) // multiplicative weights!
 			}
-		)
+		})
 
-		val weight = ((armorIds zip enchantIds).map(
-				n => Config.armorWeights.filter(n._1 == _._1).map(n._2 * _._2)
+		val weight = ((armorIds zip enchantWeights)
+			.map(n => Config.armorWeights
+				.filter(n._1 == _._1)
+				.map(n._2 * _._2)
 			).flatten :\ 0f)(_+_)
 		if (weight <= 10) 0 else (weight - 10) / 10
 	}
