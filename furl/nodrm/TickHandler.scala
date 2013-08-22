@@ -10,23 +10,25 @@ import cpw.mods.fml.common.ITickHandler
 import cpw.mods.fml.common.TickType
 
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.potion.PotionEffect
 
 object TickHandler extends ITickHandler {
 	def tickStart(types: EnumSet[TickType], data: Object*) = ()
 	def tickEnd(types: EnumSet[TickType], data: Object*) = {
 		if (types.contains(TickType.PLAYER)) {
-			PlayerTickHandler.tick(data(0).asInstanceOf[EntityPlayer])
+			PlayerTickHandler(data(0).asInstanceOf[EntityPlayer])
 		}
 	}
 	def ticks = EnumSet.of(TickType.PLAYER)
-	def getLabel = "logspamlol"
+	def getLabel = "FurlTicks"
 }
 
 object PlayerTickHandler {
+	// #yoloswag #statevariables
 	val playerExhaustion = HashMap[String, Float]()
 	var tickCount = 0
 
-	def tick(player: EntityPlayer): Unit = {
+	def apply(player: EntityPlayer): Unit = {
 		val foodStats = player.getFoodStats
 		val foodExhaustionField = foodStats
 			.getClass
@@ -50,8 +52,18 @@ object PlayerTickHandler {
 			playerExhaustion += name -> foodExhaustion
 		}
 
-		if (tickCount % 30 == 0) {
-			// Handle debuffs...
+		if (tickCount % 60 == 0) {
+			val weight = ArmorWeight(player)
+			if (weight >= Config.miningFatigueWeight) {
+				val level = math.min((weight / Config.miningFatigueWeight - 1).toInt, 3)
+				val miningFatigue = new PotionEffect(4, 120, level)
+				player.addPotionEffect(miningFatigue)
+			}
+			if (weight >= Config.slownessWeight) {
+				val level = math.min((weight / Config.slownessWeight - 1).toInt, 3)
+				val slowness = new PotionEffect(2, 120, level)
+				player.addPotionEffect(slowness)
+			}
 		}
 
 		tickCount += 1

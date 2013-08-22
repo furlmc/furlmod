@@ -16,6 +16,9 @@ object Config {
 	var armorWeights = List[ArmorWeight]()
 	var enchantWeights = List[ArmorWeight]()
 
+	var miningFatigueWeight = 1d
+	var slownessWeight = 1.2d
+
 	object BlocksParser extends RegexParsers {
 		def apply(s: String): List[BlockPair] = {
 			def emptyFailure(msg: String) = {
@@ -75,6 +78,13 @@ object Config {
 		replaceBlocks = BlocksParser(replaceBlocksString)
 		armorWeights = WeightParser(armorWeightsString)
 		enchantWeights = WeightParser(enchantWeightsString)
+
+		miningFatigueWeight = config.get("armor", "mining fatigue weight", "",
+			"while total weight of a player is >= this, they'll get mining fatigue"
+		).getDouble(1)
+		slownessWeight = config.get("armor", "slowness weight", "",
+			"..., ... slowness"
+		).getDouble(1.2)
 
 		config.save
 	}
