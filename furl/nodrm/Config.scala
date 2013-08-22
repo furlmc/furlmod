@@ -9,7 +9,31 @@ import java.io.File
 import net.minecraftforge.common.Configuration
 
 object Config {
-	var replaceBlocks = List[((Int, Int), (Int, Int))]()
+	type BlockPair = ((Int, Int), (Int, Int))
+
+	var replaceBlocks = List[BlockPair]()
+
+	object BlocksParser extends RegexParsers {
+		def id = "\\d+".r ^^ (_.toInt)
+		def block = id ~ (":" ~> id).? ^^ {
+			case block ~ data => (block, data.fold(0)(n=>n))
+		}
+		def pair = block ~ ("," ~> block) ^^ {
+			case source ~ dest => (source -> dest)
+		}
+		def list = repsep(pair, ";")
+		def exec(s: String): List[BlockPair] = {
+			def emptyFailure(msg: String) = {
+				Log.error(msg)
+				List[BlockPair]()
+			}
+			parseAll(list, s) match {
+				case Success(out, _) => out
+				case Failure(msg, _) => emptyFailure(msg)
+				case Error(msg, _) => emptyFailure(msg)
+			}
+		}
+	}
 
 	def load(path: String): Unit = {
 		val config = new Configuration(new File(path))
@@ -26,27 +50,5 @@ object Config {
 		replaceBlocks = BlocksParser.exec(replaceBlocksString)
 
 		config.save
-	}
-}
-
-object BlocksParser extends RegexParsers {
-	def id = "\\d+".r ^^ (_.toInt)
-	def block = id ~ (":" ~> id).? ^^ {
-		case block ~ data => (block, data.fold(0)(n=>n))
-	}
-	def pair = block ~ ("," ~> block) ^^ {
-		case source ~ dest => (source -> dest)
-	}
-	def list = repsep(pair, ";")
-	def exec(s: String): List[((Int, Int), (Int, Int))] = {
-		def emptyFailure(msg: String) = {
-			Log.error(msg)
-			List[((Int, Int), (Int, Int))]()
-		}
-		parseAll(list, s) match {
-			case Success(out, _) => out
-			case Failure(msg, _) => emptyFailure(msg)
-			case Error(msg, _) => emptyFailure(msg)
-		}
 	}
 }

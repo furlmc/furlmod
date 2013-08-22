@@ -13,8 +13,9 @@ import net.minecraft.entity.player.EntityPlayer
 object TickHandler extends ITickHandler {
 	def tickStart(types: EnumSet[TickType], data: Object*) = ()
 	def tickEnd(types: EnumSet[TickType], data: Object*) = {
-		if (types.contains(TickType.PLAYER))
+		if (types.contains(TickType.PLAYER)) {
 			PlayerTickHandler.tick(data(0).asInstanceOf[EntityPlayer])
+		}
 	}
 	def ticks = EnumSet.of(TickType.PLAYER)
 	def getLabel = "logspamlol"
