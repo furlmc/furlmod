@@ -26,7 +26,7 @@ object FurlMod {
 		Log.debug("i like logspam, don't you?")
 		// Armor Weight: Configged ids -> weight;
 		// weight amounts => faster hunger depletion, then mining fatigue, then
-		// slowness.  Reflect into hungeroverhaul so it works fine? No, Tick Handler.
+		// slowness. Tick Handler.
 		// GasCraft: more worldgen.  So, yeah.  Register our own, reflect for ids,
 		// win the game.
 		// More worldgen shit (biome-specific topblock replacement~)
