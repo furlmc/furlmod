@@ -1,0 +1,16 @@
+[{
+    "modid": "FurlMod",
+    "name": "NO:DRM Glue",
+    "description": "Hacks to make mods work together",
+    "version": "@VERSION@",
+    "mcversion": "@MCVERSION@",
+    "url": "nodrm.furl.cc",
+    "updateUrl": "",
+    "authors": [ "Furl" ],
+    "screenshots": [],
+    "parent": "",
+    "requiredMods": [],
+    "dependencies": [],
+    "dependants": [],
+    "useDependencyInformation": "false"
+}]
