@@ -13,8 +13,8 @@ object Config {
 
 	var replaceBlocks = List[BlockPair]()
 
-	var mineGasSpawns = 1000
-	var silverfishSpawns = 1000
+	var mineGasSpawns = 20
+	var silverfishSpawns = 50
 
 	var armorWeights = List[ArmorWeight]()
 	var enchantWeights = List[ArmorWeight]()
