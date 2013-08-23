@@ -13,5 +13,6 @@
 To compile against BoP's API, you *need* `jsr305-1.3.9` so scalac doesn't shit
 itself, because BoP uses guava stuff that scalac doesn't like.
 
-To run, GasCraft is a hard dependency.  Everything else shouldn't ClassDefEx.
-Don't sue me if it does.
+To run, GasCraft and BoP are hard dependencies.
+
+Everything else shouldn't ClassDefEx.  Don't sue me if they do.
