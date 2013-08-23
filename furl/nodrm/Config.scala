@@ -12,6 +12,7 @@ object Config {
 	type ArmorWeight = (Int, Float)
 
 	var replaceBlocks = List[BlockPair]()
+	var borderRadius = 1000d
 
 	var mineGasSpawns = 20
 	var silverfishSpawns = 50
@@ -71,19 +72,28 @@ object Config {
 		val config = new Configuration(new File(path))
 		config.load
 
+		// WorldGen stuff
 		val replaceBlocksString = config.get("worldgen",
 			"block replace map", "",
 			"old_id[:old_meta],new_id;..."
 		).getString
 
+		replaceBlocks = BlocksParser(replaceBlocksString)
+
+		borderRadius = config.get("worldgen",
+			"world border radius", "",
+			"after this point, the world becomes barren"
+		).getDouble(1000d)
+
 		// GasCraft stuff
 		mineGasSpawns = config.get("worldgen",
 			"mine gas spawns per chunk", "",
-			"replaces stone with mine gas").getInt(20)
+			"replaces stone with mine gas").getInt(100)
 		silverfishSpawns = config.get("worldgen",
 			"silverfish spawns per chunk", "",
-			"replaces stone with silverfish").getInt(50)
+			"replaces stone with silverfish").getInt(20)
 
+		// Armor stuff
 		val armorWeightsString = config.get("armor",
 			"armor to weight map", "",
 			"(sum <= 10)=> normal hunger depletion; (sum = 20)=> 2x hunger depletion"
@@ -93,7 +103,6 @@ object Config {
 			"these are multipliers applied to armor base weight"
 		).getString
 
-		replaceBlocks = BlocksParser(replaceBlocksString)
 		armorWeights = WeightParser(armorWeightsString)
 		enchantWeights = WeightParser(enchantWeightsString)
 
@@ -101,15 +110,15 @@ object Config {
 			"mining fatigue weight", "",
 			"while total weight of a player is >= this, mining fatigue is applied"
 		).getDouble(10)
-		slownessWeight = config.get("armor",
-			"slowness weight", "",
-			"..., ... slowness"
-		).getDouble(12)
-
 		miningFatigueWeightPerLevel = config.get("armor",
 			"mining fatigue weight per level", "",
 			"amount over the weight limit corresponds to higher levels of fatigue"
 		).getDouble(3)
+
+		slownessWeight = config.get("armor",
+			"slowness weight", "",
+			"..., ... slowness"
+		).getDouble(12)
 		slownessWeightPerLevel = config.get("armor",
 			"slowness weight per level", "",
 			"... slowness"

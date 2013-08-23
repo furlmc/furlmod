@@ -34,6 +34,7 @@ object FurlMod {
 	@Init
 	def init(e: FMLInitializationEvent) = {
 		MinecraftForge.EVENT_BUS.register(EventHandler)
+		WailaTip.init
 	}
 
 	@PostInit
