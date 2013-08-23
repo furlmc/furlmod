@@ -1,7 +1,5 @@
 package furl.nodrm
 
-import furl.Log
-
 import java.util.EnumSet
 import scala.collection.mutable.HashMap
 import scala.math
@@ -43,9 +41,7 @@ object PlayerTickHandler {
 
 		val diff = foodExhaustion - playerExhaustion(name)
 		if (diff > 0) {
-			val mult = ArmorWeight.mult(player)
-			Log.debug("%f".format(mult))
-			val newExhaustion = foodExhaustion + diff * mult
+			val newExhaustion = foodExhaustion + diff * ArmorWeight.mult(player)
 			foodExhaustionField.setFloat(foodStats, newExhaustion)
 			playerExhaustion += name -> newExhaustion
 		} else {

@@ -1,7 +1,5 @@
 package furl.nodrm
 
-import furl.Log
-
 import scala.collection.mutable.HashMap
 import scala.math
 import scala.util.parsing.combinator._
@@ -14,6 +12,10 @@ object Config {
 	type ArmorWeight = (Int, Float)
 
 	var replaceBlocks = List[BlockPair]()
+
+	var mineGasSpawns = 1000
+	var silverfishSpawns = 1000
+
 	var armorWeights = List[ArmorWeight]()
 	var enchantWeights = List[ArmorWeight]()
 
@@ -65,6 +67,7 @@ object Config {
 	}
 
 	def load(path: String): Unit = {
+		Log.info("Loading config...")
 		val config = new Configuration(new File(path))
 		config.load
 
@@ -72,6 +75,15 @@ object Config {
 			"block replace map", "",
 			"old_id[:old_meta],new_id;..."
 		).getString
+
+		// GasCraft stuff
+		mineGasSpawns = config.get("worldgen",
+			"mine gas spawns per chunk", "",
+			"replaces stone with mine gas").getInt(20)
+		silverfishSpawns = config.get("worldgen",
+			"silverfish spawns per chunk", "",
+			"replaces stone with silverfish").getInt(50)
+
 		val armorWeightsString = config.get("armor",
 			"armor to weight map", "",
 			"(sum <= 10)=> normal hunger depletion; (sum = 20)=> 2x hunger depletion"
