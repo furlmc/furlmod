@@ -3,6 +3,7 @@ package furl.nodrm
 import furl.Log
 
 import scala.collection.mutable.HashMap
+import scala.math
 import scala.util.parsing.combinator._
 import java.io.File
 
@@ -16,8 +17,10 @@ object Config {
 	var armorWeights = List[ArmorWeight]()
 	var enchantWeights = List[ArmorWeight]()
 
-	var miningFatigueWeight = 1d
-	var slownessWeight = 1.2d
+	var miningFatigueWeight = 10d
+	var slownessWeight = 12d
+	var miningFatigueWeightPerLevel = 3d
+	var slownessWeightPerLevel = 4d
 
 	object BlocksParser extends RegexParsers {
 		def apply(s: String): List[BlockPair] = {
@@ -65,13 +68,16 @@ object Config {
 		val config = new Configuration(new File(path))
 		config.load
 
-		val replaceBlocksString = config.get("worldgen", "block replace map", "",
+		val replaceBlocksString = config.get("worldgen",
+			"block replace map", "",
 			"old_id[:old_meta],new_id;..."
 		).getString
-		val armorWeightsString = config.get("armor", "armor to weight map", "",
+		val armorWeightsString = config.get("armor",
+			"armor to weight map", "",
 			"(sum <= 10)=> normal hunger depletion; (sum = 20)=> 2x hunger depletion"
 		).getString
-		val enchantWeightsString = config.get("armor", "enchant to weight map", "",
+		val enchantWeightsString = config.get("armor",
+			"enchant to weight map", "",
 			"these are multipliers applied to armor base weight"
 		).getString
 
@@ -79,13 +85,31 @@ object Config {
 		armorWeights = WeightParser(armorWeightsString)
 		enchantWeights = WeightParser(enchantWeightsString)
 
-		miningFatigueWeight = config.get("armor", "mining fatigue weight", "",
-			"while total weight of a player is >= this, they'll get mining fatigue"
-		).getDouble(1)
-		slownessWeight = config.get("armor", "slowness weight", "",
+		miningFatigueWeight = config.get("armor",
+			"mining fatigue weight", "",
+			"while total weight of a player is >= this, mining fatigue is applied"
+		).getDouble(10)
+		slownessWeight = config.get("armor",
+			"slowness weight", "",
 			"..., ... slowness"
-		).getDouble(1.2)
+		).getDouble(12)
+
+		miningFatigueWeightPerLevel = config.get("armor",
+			"mining fatigue weight per level", "",
+			"amount over the weight limit corresponds to higher levels of fatigue"
+		).getDouble(3)
+		slownessWeightPerLevel = config.get("armor",
+			"slowness weight per level", "",
+			"... slowness"
+		).getDouble(4)
 
 		config.save
 	}
+
+	def slownessLevel(weight: Float) = math.min((
+			(weight - slownessWeight) / slownessWeightPerLevel
+		).toInt, 3)
+	def miningFatigueLevel(weight: Float) = math.min((
+			(weight - miningFatigueWeight) / miningFatigueWeightPerLevel
+		).toInt, 3)
 }

@@ -43,9 +43,9 @@ object PlayerTickHandler {
 
 		val diff = foodExhaustion - playerExhaustion(name)
 		if (diff > 0) {
-			val weight = ArmorWeight(player)
-			Log.debug("%f".format(weight))
-			val newExhaustion = foodExhaustion + diff * weight
+			val mult = ArmorWeight.mult(player)
+			Log.debug("%f".format(mult))
+			val newExhaustion = foodExhaustion + diff * mult
 			foodExhaustionField.setFloat(foodStats, newExhaustion)
 			playerExhaustion += name -> newExhaustion
 		} else {
@@ -55,12 +55,12 @@ object PlayerTickHandler {
 		if (tickCount % 60 == 0) {
 			val weight = ArmorWeight(player)
 			if (weight >= Config.miningFatigueWeight) {
-				val level = math.min((weight / Config.miningFatigueWeight - 1).toInt, 3)
+				val level = Config.miningFatigueLevel(weight)
 				val miningFatigue = new PotionEffect(4, 120, level)
 				player.addPotionEffect(miningFatigue)
 			}
 			if (weight >= Config.slownessWeight) {
-				val level = math.min((weight / Config.slownessWeight - 1).toInt, 3)
+				val level = Config.slownessLevel(weight)
 				val slowness = new PotionEffect(2, 120, level)
 				player.addPotionEffect(slowness)
 			}

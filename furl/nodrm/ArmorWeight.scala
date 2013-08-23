@@ -30,8 +30,11 @@ object ArmorWeight {
 
 	def apply(player: EntityPlayer): Float = {
 		val armor = player.inventory.armorInventory
+		(armor.map(ArmorWeight(_)) :\ 0f)(_+_) // sum armor pieces
+	}
 
-		val weight = (armor.map(ArmorWeight(_)) :\ 0f)(_+_) // sum armor pieces
+	def mult(player: EntityPlayer): Float = {
+		val weight = ArmorWeight(player)
 		if (weight <= 10) 0 else (weight - 10) / 10
 	}
 }
