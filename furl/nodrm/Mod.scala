@@ -21,7 +21,7 @@ import net.minecraftforge.common.MinecraftForge
 )
 object FurlMod {
 	@PreInit
-	def preInit(e: FMLPreInitializationEvent) = {
+	def preInit(e: FMLPreInitializationEvent): Unit = {
 		// Armor Weight: Configged ids -> weight;
 		// weight amounts => faster hunger depletion, then mining fatigue, then
 		// slowness. Tick Handler.
@@ -32,13 +32,16 @@ object FurlMod {
 	}
 
 	@Init
-	def init(e: FMLInitializationEvent) = {
+	def init(e: FMLInitializationEvent): Unit = {
 		MinecraftForge.EVENT_BUS.register(EventHandler)
+		MinecraftForge.TERRAIN_GEN_BUS.register(EventHandler)
+		MinecraftForge.ORE_GEN_BUS.register(EventHandler)
 		WailaTip.init
+		JungleSpiders.remove
 	}
 
 	@PostInit
-	def postInit(e: FMLPostInitializationEvent) = {
+	def postInit(e: FMLPostInitializationEvent): Unit = {
 		TickRegistry.registerTickHandler(TickHandler, Side.SERVER)
 		GameRegistry.registerWorldGenerator(MoreGas)
 		GameRegistry.registerWorldGenerator(MoreFish)

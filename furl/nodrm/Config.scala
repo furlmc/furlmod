@@ -12,6 +12,7 @@ object Config {
 	type ArmorWeight = (Int, Float)
 
 	var replaceBlocks = List[BlockPair]()
+	var replaceBlocksDeadland = List[BlockPair]()
 	var borderRadius = 1000d
 
 	var mineGasSpawns = 20
@@ -79,6 +80,13 @@ object Config {
 		).getString
 
 		replaceBlocks = BlocksParser(replaceBlocksString)
+
+		val replaceBlocksDeadlandString = config.get("worldgen",
+			"deadlands block replace map", "",
+			"these are applied outside the world border radius"
+		).getString
+
+		replaceBlocksDeadland = BlocksParser(replaceBlocksDeadlandString)
 
 		borderRadius = config.get("worldgen",
 			"world border radius", "",

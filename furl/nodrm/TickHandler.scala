@@ -3,6 +3,7 @@ package furl.nodrm
 import java.util.EnumSet
 import scala.collection.mutable.HashMap
 import scala.math
+import scala.util.Random
 
 import cpw.mods.fml.common.ITickHandler
 import cpw.mods.fml.common.TickType
@@ -24,6 +25,7 @@ object TickHandler extends ITickHandler {
 object PlayerTickHandler {
 	// #yoloswag #statevariables
 	val playerExhaustion = HashMap[String, Float]()
+	val rand = Random
 	var tickCount = 0
 
 	def apply(player: EntityPlayer): Unit = {
@@ -59,6 +61,30 @@ object PlayerTickHandler {
 				val level = Config.slownessLevel(weight)
 				val slowness = new PotionEffect(2, 120, level)
 				player.addPotionEffect(slowness)
+			}
+
+			val x = player.posX
+			val z = player.posZ
+			val dist = math.sqrt(x * x + z * z)
+			if (dist > Config.borderRadius) {
+				{
+					val excess = (dist - Config.borderRadius) / Config.borderRadius
+					val level = math.min(excess / 0.2, 4).toInt
+					val miningFatigue = new PotionEffect(4, 120, level)
+					player.addPotionEffect(miningFatigue)
+				}
+				if (dist > Config.borderRadius * 1.2) {
+					val excess = (dist - Config.borderRadius * 1.2) / Config.borderRadius
+					val level = math.min(excess / 0.4, 4).toInt
+					val weakness = new PotionEffect(18, 120, level)
+					player.addPotionEffect(weakness)
+				}
+				if (dist > Config.borderRadius * 1.5) {
+					val excess = (dist - Config.borderRadius * 1.5) / Config.borderRadius
+					val level = math.min(excess / 0.1, 10).toInt
+					val hunger = new PotionEffect(17, 120, level)
+					player.addPotionEffect(hunger)
+				}
 			}
 		}
 
