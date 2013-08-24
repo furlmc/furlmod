@@ -25,10 +25,22 @@ object TickHandler extends ITickHandler {
 object PlayerTickHandler {
 	// #yoloswag #statevariables
 	val playerExhaustion = HashMap[String, Float]()
-	val rand = Random
-	var tickCount = 0
+	val tickCounts = HashMap[String, Int]()
 
 	def apply(player: EntityPlayer): Unit = {
+		doWeightHunger(player)
+
+		val tickCount = tickCounts.getOrElse(player.getEntityName, 0)
+
+		if (tickCount % 60 == 0) {
+			doArmorEffects(player)
+			doBorderEffects(player)
+		}
+
+		tickCounts += player.getEntityName -> tickCount + 1
+	}
+
+	def doWeightHunger(player: EntityPlayer): Unit = {
 		val foodStats = player.getFoodStats
 		val foodExhaustionField = foodStats
 			.getClass
@@ -49,20 +61,24 @@ object PlayerTickHandler {
 		} else {
 			playerExhaustion += name -> foodExhaustion
 		}
+	}
 
-		if (tickCount % 60 == 0) {
-			val weight = ArmorWeight(player)
-			if (weight >= Config.miningFatigueWeight) {
-				val level = Config.miningFatigueLevel(weight)
-				val miningFatigue = new PotionEffect(4, 120, level)
-				player.addPotionEffect(miningFatigue)
-			}
-			if (weight >= Config.slownessWeight) {
-				val level = Config.slownessLevel(weight)
-				val slowness = new PotionEffect(2, 120, level)
-				player.addPotionEffect(slowness)
-			}
+	def doArmorEffects(player: EntityPlayer): Unit = {
+		val weight = ArmorWeight(player)
+		if (weight >= Config.miningFatigueWeight) {
+			val level = Config.miningFatigueLevel(weight)
+			val miningFatigue = new PotionEffect(4, 120, level)
+			player.addPotionEffect(miningFatigue)
+		}
+		if (weight >= Config.slownessWeight) {
+			val level = Config.slownessLevel(weight)
+			val slowness = new PotionEffect(2, 120, level)
+			player.addPotionEffect(slowness)
+		}
+	}
 
+	def doBorderEffects(player: EntityPlayer): Unit = {
+		if (List(0, -1).contains(player.dimension)) {
 			val x = player.posX
 			val z = player.posZ
 			val dist = math.sqrt(x * x + z * z)
@@ -87,7 +103,5 @@ object PlayerTickHandler {
 				}
 			}
 		}
-
-		tickCount += 1
 	}
 }
