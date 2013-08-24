@@ -38,7 +38,7 @@ object PlayerTickHandler {
 			doBorderEffects(player)
 		}
 
-		tickCounts += name -> tickCount + 1
+		tickCounts += name -> (tickCount + 1)
 	}
 
 	def doWeightHunger(player: EntityPlayer): Unit = {
@@ -83,26 +83,17 @@ object PlayerTickHandler {
 			val x = player.posX
 			val z = player.posZ
 			val dist = math.sqrt(x * x + z * z)
-			if (dist > Config.borderRadius) {
-				{
-					val excess = (dist - Config.borderRadius) / Config.borderRadius
-					val level = math.min(excess / 0.2, 4).toInt
-					val miningFatigue = new PotionEffect(4, 120, level)
-					player.addPotionEffect(miningFatigue)
-				}
-				if (dist > Config.borderRadius * 1.2) {
-					val excess = (dist - Config.borderRadius * 1.2) / Config.borderRadius
-					val level = math.min(excess / 0.4, 4).toInt
-					val weakness = new PotionEffect(18, 120, level)
-					player.addPotionEffect(weakness)
-				}
-				if (dist > Config.borderRadius * 1.5) {
-					val excess = (dist - Config.borderRadius * 1.5) / Config.borderRadius
-					val level = math.min(excess / 0.1, 10).toInt
-					val hunger = new PotionEffect(17, 120, level)
-					player.addPotionEffect(hunger)
-				}
-			}
+			val border = Config.borderRadius
+			List(
+				(1.0, 0.2, 4, 4),  // Mining Fatigue
+				(1.2, 0.4, 4, 18), // Weakness
+				(1.5, 0.1, 10, 17) // Hunger
+			).foreach(n => if (dist > border * n._1) {
+				val excess = dist / border - 1
+				val level = math.min(excess / n._2, n._3).toInt
+				val effect = new PotionEffect(n._4, 120, level)
+				player.addPotionEffect(effect)
+			})
 		}
 	}
 }
