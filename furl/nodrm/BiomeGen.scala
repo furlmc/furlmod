@@ -9,13 +9,14 @@ object BiomeBorder {
 	def apply(
 		biomeArray: Array[BiomeGenBase], chunkX: Int, chunkZ: Int
 	): Unit = for {
-			z <- 0 to 15
-			x <- 0 to 15
-		} {
-			val worldX = chunkX * 16 + x
-			val worldZ = chunkZ * 16 + z
-			val dist = math.sqrt(worldX * worldX + worldZ * worldZ)
-			if (dist > Config.borderRadius)
-				biomeArray(z*16+x) = wasteland
-		}
+		z <- 0 to 15
+		x <- 0 to 15
+	} {
+		val worldX = chunkX * 16 + x
+		val worldZ = chunkZ * 16 + z
+		if (!inside(worldX, worldZ))
+			biomeArray(z*16+x) = wasteland
+	}
+
+	def inside(x: Int, z: Int) = math.sqrt(x * x + z * z) < Config.borderRadius
 }

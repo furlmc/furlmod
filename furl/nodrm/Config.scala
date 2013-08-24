@@ -9,9 +9,11 @@ import net.minecraftforge.common.Configuration
 
 object Config {
 	type BlockPair = ((Int, Int), (Int, Int))
+	type BiomeBlockPair = (Int, (Int, Int), (Int, Int))
 	type ArmorWeight = (Int, Float)
 
 	var replaceBlocks = List[BlockPair]()
+	var biomeReplaceBlocks = List[BiomeBlockPair]()
 	var replaceBlocksDeadland = List[BlockPair]()
 	var borderRadius = 1000d
 
@@ -39,6 +41,31 @@ object Config {
 			}
 		}
 		def list = repsep(pair, ";")
+		def pair = block ~ ("," ~> block) ^^ {
+			case source ~ dest => (source -> dest)
+		}
+		def block = id ~ (":" ~> id).? ^^ {
+			case block ~ data => (block, data.fold(0)(n=>n))
+		}
+		def id = "\\d+".r ^^ (_.toInt)
+	}
+
+	object BiomeBlocksParser extends RegexParsers {
+		def apply(s: String): List[BiomeBlockPair] = {
+			def emptyFailure(msg: String) = {
+				Log.error(msg)
+				List[BiomeBlockPair]()
+			}
+			parseAll(biomelist, s) match {
+				case Success(out, _) => out
+				case Failure(msg, _) => emptyFailure(msg)
+				case Error(msg, _) => emptyFailure(msg)
+			}
+		}
+		def biomelist = repsep(biomepair, ";")
+		def biomepair = id ~ pair ^^ {
+			case id ~ pair => (id, pair._1, pair._2)
+		}
 		def pair = block ~ ("," ~> block) ^^ {
 			case source ~ dest => (source -> dest)
 		}
@@ -92,6 +119,13 @@ object Config {
 			"world border radius", "",
 			"after this point, the world becomes barren"
 		).getDouble(1000d)
+
+		val biomeReplaceBlocksString = config.get("worldgen",
+			"biome block replace map", "",
+			"biome_id,old_id,new_id;..."
+		).getString
+
+		biomeReplaceBlocks = BiomeBlocksParser(biomeReplaceBlocksString)
 
 		// GasCraft stuff
 		mineGasSpawns = config.get("worldgen",

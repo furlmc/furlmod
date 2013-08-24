@@ -22,7 +22,6 @@ import net.minecraftforge.common.MinecraftForge
 object FurlMod {
 	@PreInit
 	def preInit(e: FMLPreInitializationEvent): Unit = {
-		// More worldgen shit (biome-specific topblock replacement~)
 		Config.load(e.getModConfigurationDirectory.getAbsolutePath + "/furlmod.cfg")
 	}
 

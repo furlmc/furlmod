@@ -8,6 +8,7 @@ import net.minecraftforge.event.terraingen.ChunkProviderEvent
 import net.minecraftforge.event.terraingen.DecorateBiomeEvent
 import net.minecraftforge.event.terraingen.OreGenEvent
 import net.minecraftforge.event.terraingen.PopulateChunkEvent
+import net.minecraft.world.gen.ChunkProviderGenerate
 import net.minecraft.world.World
 
 object EventHandler {
@@ -19,7 +20,7 @@ object EventHandler {
 			x <- (0 to 15).map(_+event.chunkX)
 		} {
 			val dist = math.sqrt(x * x + z * z)
-			if (dist > Config.borderRadius) {
+			if (event.world.provider.dimensionId == 0 && dist > Config.borderRadius) {
 				val excess = dist - Config.borderRadius
 				// Taper the sea level
 				val waterLevel = 63 - math.min(excess / 8, 63)
@@ -51,13 +52,20 @@ object EventHandler {
 			Config.replaceBlocks.map(
 				n => ReplaceBlocks(event.world, (x, y, z), n._1, n._2)
 			)
+
+			// Replace biome-specific blocks
+			Config.biomeReplaceBlocks.map(
+				n => if (event.world.getBiomeGenForCoords(x, z) == n._1)
+					ReplaceBlocks(event.world, (x, y, z), n._2, n._3)
+			)
 		}
 	}
 
 	@ForgeSubscribe
 	def preBiomeReplace(event: ChunkProviderEvent.ReplaceBiomeBlocks) =
-		// Convert all biomes outside the world border to wasteland
-		BiomeBorder(event.biomeArray, event.chunkX, event.chunkZ)
+		if (event.chunkProvider.isInstanceOf[ChunkProviderGenerate])
+			// Convert all biomes outside the world border to wasteland
+			BiomeBorder(event.biomeArray, event.chunkX, event.chunkZ)
 
 	@ForgeSubscribe
 	def oreGen(event: OreGenEvent.GenerateMinable): Unit = {

@@ -25,8 +25,7 @@ object MoreGas extends IWorldGenerator {
 			)
 		}
 
-		val dist = math.sqrt(worldX * worldX + worldZ * worldZ)
-		if (dist > Config.borderRadius) {
+		if (!BiomeBorder.inside(worldX, worldZ)) {
 			val spawns = Config.mineGasSpawns * 100
 			def y = r.nextInt(63)
 			spawn(spawns, y)
@@ -50,6 +49,19 @@ object MoreFish extends IWorldGenerator {
 			ReplaceBlocks(world, (x, y, z),
 				(Block.stone.blockID, 0), (Block.silverfish.blockID, 0)
 			)
+		}
+	}
+}
+
+object ReplaceBlocks {
+	def apply(world: World, point: (Int,Int,Int),
+		a: (Int, Int), b: (Int, Int)
+	) = {
+		val (i, j, k) = point
+		val block = world.getBlockId(i, j, k)
+		val data = world.getBlockMetadata(i, j, k)
+		if (block == a._1 && data == a._2) {
+			world.setBlock(i, j, k, b._1, b._2, 2)
 		}
 	}
 }
