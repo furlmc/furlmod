@@ -28,16 +28,17 @@ object PlayerTickHandler {
 	val tickCounts = HashMap[String, Int]()
 
 	def apply(player: EntityPlayer): Unit = {
+		val name = player.getEntityName
 		doWeightHunger(player)
 
-		val tickCount = tickCounts.getOrElse(player.getEntityName, 0)
+		val tickCount = tickCounts.getOrElse(name, 0)
 
 		if (tickCount % 60 == 0) {
 			doArmorEffects(player)
 			doBorderEffects(player)
 		}
 
-		tickCounts += player.getEntityName -> tickCount + 1
+		tickCounts += name -> tickCount + 1
 	}
 
 	def doWeightHunger(player: EntityPlayer): Unit = {
