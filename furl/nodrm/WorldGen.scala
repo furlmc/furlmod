@@ -20,8 +20,8 @@ object MoreGas extends IWorldGenerator {
 		def spawn(spawns: Int, y: Int): Unit = for (_ <- 1 to spawns) {
 			val x = r.nextInt(16) + worldX
 			val z = r.nextInt(16) + worldZ
-			ReplaceBlocks(world, (x, y, z),
-				(Block.stone.blockID, 0), (EmasherGas.mineGas.blockID, 0)
+			ReplaceBlocks(world, x, y, z,
+				Block.stone.blockID, 0, EmasherGas.mineGas.blockID, 0
 			)
 		}
 
@@ -46,22 +46,23 @@ object MoreFish extends IWorldGenerator {
 			val y = if (r.nextInt(1) == 0) 8 + r.nextInt(32) else 10 + r.nextInt(10)
 			val x = r.nextInt(16) + chunkX * 16
 			val z = r.nextInt(16) + chunkZ * 16
-			ReplaceBlocks(world, (x, y, z),
-				(Block.stone.blockID, 0), (Block.silverfish.blockID, 0)
+			ReplaceBlocks(world, x, y, z,
+				Block.stone.blockID, 0, Block.silverfish.blockID, 0
 			)
 		}
 	}
 }
 
 object ReplaceBlocks {
-	def apply(world: World, point: (Int,Int,Int),
-		a: (Int, Int), b: (Int, Int)
-	) = {
-		val (i, j, k) = point
+	def apply(world: World,
+		i: Int, j: Int, k: Int,
+		a: Int, adata: Int,
+		b: Int, bdata: Int
+	): Unit = {
 		val block = world.getBlockId(i, j, k)
 		val data = world.getBlockMetadata(i, j, k)
-		if (block == a._1 && data == a._2) {
-			world.setBlock(i, j, k, b._1, b._2, 2)
+		if (block == a && data == adata) {
+			world.setBlock(i, j, k, b, bdata, 2)
 		}
 	}
 }

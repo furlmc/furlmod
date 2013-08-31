@@ -24,9 +24,9 @@ object Config {
 	var enchantWeights = List[ArmorWeight]()
 
 	var miningFatigueWeight = 10d
-	var slownessWeight = 12d
+	var weaknessWeight = 12d
 	var miningFatigueWeightPerLevel = 3d
-	var slownessWeightPerLevel = 4d
+	var weaknessWeightPerLevel = 4d
 
 	object BlocksParser extends RegexParsers {
 		def apply(s: String): List[BlockPair] = {
@@ -157,20 +157,20 @@ object Config {
 			"amount over the weight limit corresponds to higher levels of fatigue"
 		).getDouble(3)
 
-		slownessWeight = config.get("armor",
-			"slowness weight", "",
-			"..., ... slowness"
+		weaknessWeight = config.get("armor",
+			"weakness weight", "",
+			"..., ... weakness"
 		).getDouble(12)
-		slownessWeightPerLevel = config.get("armor",
-			"slowness weight per level", "",
+		weaknessWeightPerLevel = config.get("armor",
+			"weakness weight per level", "",
 			"... slowness"
 		).getDouble(4)
 
 		config.save
 	}
 
-	def slownessLevel(weight: Float) = math.min((
-			(weight - slownessWeight) / slownessWeightPerLevel
+	def weaknessLevel(weight: Float) = math.min((
+			(weight - weaknessWeight) / weaknessWeightPerLevel
 		).toInt, 3)
 	def miningFatigueLevel(weight: Float) = math.min((
 			(weight - miningFatigueWeight) / miningFatigueWeightPerLevel

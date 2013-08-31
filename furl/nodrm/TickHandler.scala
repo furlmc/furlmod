@@ -71,10 +71,10 @@ object PlayerTickHandler {
 			val miningFatigue = new PotionEffect(4, 120, level)
 			player.addPotionEffect(miningFatigue)
 		}
-		if (weight >= Config.slownessWeight) {
-			val level = Config.slownessLevel(weight)
-			val slowness = new PotionEffect(2, 120, level)
-			player.addPotionEffect(slowness)
+		if (weight >= Config.weaknessWeight) {
+			val level = Config.weaknessLevel(weight)
+			val weakness = new PotionEffect(18, 120, level)
+			player.addPotionEffect(weakness)
 		}
 	}
 

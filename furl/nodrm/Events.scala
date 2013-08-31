@@ -2,6 +2,8 @@ package furl.nodrm
 
 import scala.math
 
+import biomesoplenty.world.ChunkProviderBOP
+
 import net.minecraftforge.event.ForgeSubscribe
 import net.minecraftforge.event.Event
 import net.minecraftforge.event.terraingen.ChunkProviderEvent
@@ -15,55 +17,67 @@ object EventHandler {
 	@ForgeSubscribe
 	def postDecorate(event: DecorateBiomeEvent.Post): Unit = {
 		for {
-			y <- 0 to 127
-			z <- (0 to 15).map(_+event.chunkZ)
-			x <- (0 to 15).map(_+event.chunkX)
+			i <- (-1 to 1).map(_*16+event.chunkX)
+			k <- (-1 to 1).map(_*16+event.chunkZ)
 		} {
-			val dist = math.sqrt(x * x + z * z)
-			if (event.world.provider.dimensionId == 0 && dist > Config.borderRadius) {
-				val excess = dist - Config.borderRadius
-				// Taper the sea level
-				val waterLevel = 63 - math.min(excess / 8, 63)
-				// Also taper flowing water
-				def water = {
-					val excessWater = y - waterLevel
-					if (excessWater < 1) {
-						val data = (excessWater * 9).toInt
-						if (data < 8) {
-							(8, data)
-						} else {
-							(0, 0)
-						}
+			if (event.world.blockExists(i, 0, k)) {
+				for {
+					x <- 0+i to 15+i
+					z <- 0+k to 15+k
+				} {
+					for (y <- 0 to event.world.getHeightValue(x, z))
+						process(event.world, x, y, z)
+				}
+			}
+		}
+	}
+
+	def process(world: World, x: Int, y: Int, z: Int): Unit = {
+		val dist = math.sqrt(x * x + z * z)
+		if (world.provider.dimensionId == 0 && dist > Config.borderRadius) {
+			val excess = dist - Config.borderRadius
+			// Taper the sea level
+			val waterLevel = 63 - math.min(excess / 8, 63)
+			// Also taper flowing water
+			def water = {
+				val excessWater = y - waterLevel
+				if (excessWater < 1) {
+					val data = (excessWater * 9).toInt
+					if (data < 8) {
+						(8, data)
 					} else {
 						(0, 0)
 					}
+				} else {
+					(0, 0)
 				}
-				// Replace deadlands water
-				if (y > waterLevel)
-					ReplaceBlocks(event.world, (x, y, z), (9, 0), water)
-
-				// Replace blocks outside the world border
-				Config.replaceBlocksDeadland.map(
-					n => ReplaceBlocks(event.world, (x, y, z), n._1, n._2)
-				)
 			}
+			// Replace deadlands water
+			if (y > waterLevel)
+				ReplaceBlocks(world, x, y, z, 9, 0, water._1, water._2)
 
-			// Replace blocks for all chunks
-			Config.replaceBlocks.map(
-				n => ReplaceBlocks(event.world, (x, y, z), n._1, n._2)
-			)
-
-			// Replace biome-specific blocks
-			Config.biomeReplaceBlocks.map(
-				n => if (event.world.getBiomeGenForCoords(x, z) == n._1)
-					ReplaceBlocks(event.world, (x, y, z), n._2, n._3)
+			// Replace blocks outside the world border
+			Config.replaceBlocksDeadland.map(
+				n => ReplaceBlocks(world, x, y, z, n._1._1, n._1._2, n._2._1, n._2._2)
 			)
 		}
+
+		// Replace blocks for all chunks
+		Config.replaceBlocks.map(
+			n => ReplaceBlocks(world, x, y, z, n._1._1, n._1._2, n._2._1, n._2._2)
+		)
+
+		// Replace biome-specific blocks
+		Config.biomeReplaceBlocks.map(
+			n => if (world.getBiomeGenForCoords(x, z).biomeID == n._1)
+				ReplaceBlocks(world, x, y, z, n._2._1, n._2._2, n._3._1, n._3._2)
+		)
 	}
 
 	@ForgeSubscribe
 	def preBiomeReplace(event: ChunkProviderEvent.ReplaceBiomeBlocks) =
-		if (event.chunkProvider.isInstanceOf[ChunkProviderGenerate])
+		if (event.chunkProvider.isInstanceOf[ChunkProviderGenerate] ||
+				event.chunkProvider.isInstanceOf[ChunkProviderBOP])
 			// Convert all biomes outside the world border to wasteland
 			BiomeBorder(event.biomeArray, event.chunkX, event.chunkZ)
 
